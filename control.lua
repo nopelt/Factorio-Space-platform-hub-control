@@ -14,13 +14,17 @@ script.on_event({
     defines.events.script_raised_revive,
     defines.events.on_entity_cloned
 }, function(event)
----@diagnostic disable-next-line: undefined-field
+    ---@diagnostic disable-next-line: undefined-field
     local entity = event.created_entity or event.entity
     if not entity then return end
 
     if entity.name == "shutdown-combinator" then
         local unit_number = entity.unit_number
         if unit_number ~= nil then
+            -- Ensure the table exists
+            if not storage.shutdown_combinator_everything then
+                storage.shutdown_combinator_everything = {}
+            end
             storage.shutdown_combinator_everything[unit_number] = {
                 shutdown_combinator_signals = {},
                 switch_state = "left",
@@ -34,8 +38,12 @@ script.on_event({
                 position = entity.position,
                 surface = entity.surface
             }
+
+            -- Ensure scan_queue exists
+            if not storage.scan_queue then
+                storage.scan_queue = {}
+            end
             table.insert(storage.scan_queue, unit_number)
-            
         end
 
         local behavior = entity.get_or_create_control_behavior() --[[@as LuaDeciderCombinatorControlBehavior]]

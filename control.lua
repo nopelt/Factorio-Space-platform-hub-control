@@ -33,7 +33,7 @@ script.on_event({
                 connected_state = false,
                 dummy_signal = false,
                 speed_control_state = false,
-                speed_control_value = 0,
+                speed_control_value = 50,
                 entity = entity,
                 position = entity.position,
                 surface = entity.surface

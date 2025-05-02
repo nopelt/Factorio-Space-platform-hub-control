@@ -8,10 +8,9 @@ A **Factorio mod** that adds a **decider-combinator-like** entity to precisely c
 
 1. **Connect the mod’s output to the space platform hub.**
 2. **Connect any signal input to the mod's input** (e.g., from a constant combinator or another logic source).
-3. To **read the hub's status**, connect a decider combinator (or anything else) to the mod’s **output** 
-4. To **control the hub's speed**, make sure the **"Read speed"** checkbox in the hub is checked.
+3. To **read the hub's status**, connect a decider combinator (or anything else) to the mod’s **output**  
    ![Read hub signal](Github_pictures/Read_speed.png)
-5. Example circuit setup:  
+4. To **control the hub's speed**, make sure the **"Read speed"** checkbox in the hub is checked.  
    ![Connection Example](Github_pictures/Cnt_example.png)
 
 ---
@@ -35,5 +34,12 @@ A **Factorio mod** that adds a **decider-combinator-like** entity to precisely c
 
 ---
 
+## ⚠️ Known Limitations / Cons
 
+### 1. **Speed Control Affects Hub State Reading**
+- If the **"Speed Control"** checkbox is **ticked** and the platform's speed drops to **`0 km/s` or lower**,  
+  the **hub state signal will read as `H0`** — even if the hub is still in **"automatic"** mode.
+- This means that when the **platform stops at a station** (i.e., speed = `0` or `-10`), the mod **will report it as not moving**.
+- ➤ **If you need perfect hub state reading, avoid enabling Speed Control.**
 
+---

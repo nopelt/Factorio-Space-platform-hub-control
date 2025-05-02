@@ -21,7 +21,10 @@ shutdownCombinator.flags = {"placeable-neutral", "player-creation"}
 shutdownCombinator.max_health = 150
 shutdownCombinator.collision_box = base.collision_box
 shutdownCombinator.selection_box = base.selection_box
-
+shutdownCombinator.minable = {
+  mining_time = 0.1,
+  result = "shutdown-combinator"
+}
 
 
 -- Circuit logic setup (from constant-combinator)

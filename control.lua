@@ -84,6 +84,27 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
     end
 end)
 
+script.on_event(defines.events.on_space_platform_mined_entity, function(event)
+    local entity = event.entity
+    if not (entity and entity.valid and entity.name == "shutdown-combinator") then return end
+
+    local unit_number = entity.unit_number
+    if unit_number and storage.shutdown_combinator_everything then
+        storage.shutdown_combinator_everything[unit_number] = nil
+    end
+
+    local buffer = event.buffer
+    if buffer and buffer.insert then
+        local inserted = buffer.insert({ name = "shutdown-combinator", count = 1 })
+        if inserted == 0 then
+            entity.surface.spill_item_stack({
+                position = entity.position,
+                stack = { name = "shutdown-combinator", count = 1 }
+            })
+        end
+    end
+end)
+
 -- GUI OPEN -----------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_gui_opened, function(event)
     -- Ensure the event is valid and contains a valid entity

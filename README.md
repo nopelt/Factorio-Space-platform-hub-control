@@ -12,8 +12,8 @@ A **Factorio mod** that adds a **decider-combinator-like** entity to precisely c
 1. **Connect the mod’s output to the space platform hub.**
 2. **Connect any signal input to the mod's input** (e.g., from a constant combinator or another logic source).
 3. To **read the hub's status**, connect a decider combinator (or anything else) to the mod’s **output**  
-   ![Read hub signal](Github_pictures/Read_speed.png)
-4. To **control the hub's speed**, make sure the **"Read speed"** checkbox in the hub is checked.  
+   
+4. To **control the hub's speed**, make sure the **"Read speed"** checkbox in the hub is checked.  ![Read hub signal](Github_pictures/Read_speed.png)
    ![Connection Example](Github_pictures/Cnt_example.png)
 
 ---

@@ -43,3 +43,14 @@ A **Factorio mod** that adds a **decider-combinator-like** entity to precisely c
 - ➤ **If you need perfect hub state reading, avoid enabling Speed Control.**
 
 ---
+
+## 📝 Things To Do If Requested
+
+These features are not currently implemented, but may be added based on demand/request:
+
+1. **Toggle the hub into automatic mode** if a **specific circuit signal** is sent.
+2. **Toggle the hub into manual mode** if a **specific circuit signal** is sent.
+3. **Enable/disable speed control** via a **specific signal input**.
+4. Other things may be added if the suggested request is **reasonable and not to op**.
+
+---

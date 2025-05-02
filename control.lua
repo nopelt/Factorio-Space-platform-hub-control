@@ -78,19 +78,9 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
         storage.shutdown_combinator_everything[unit_number] = nil
     end
 
-    if event.player_index then
-        local player = game.get_player(event.player_index)
-        if player and player.valid then
-            local inserted = player.insert({ name = "shutdown-combinator", count = 1 })
-            if inserted == 0 then
-                player.surface.spill_item_stack({
-                    position = {x = player.position.x, y = player.position.y},
-                    stack = { name = "shutdown-combinator", count = 1 }
-                })
-            end
-        end
-    end
+    -- No need to insert manually — the minable.result already gives the item
 end)
+
 
 script.on_event(defines.events.on_space_platform_mined_entity, function(event)
     local entity = event.entity
@@ -101,16 +91,7 @@ script.on_event(defines.events.on_space_platform_mined_entity, function(event)
         storage.shutdown_combinator_everything[unit_number] = nil
     end
 
-    local buffer = event.buffer
-    if buffer and buffer.insert then
-        local inserted = buffer.insert({ name = "shutdown-combinator", count = 1 })
-        if inserted == 0 then
-            entity.surface.spill_item_stack({
-                position = entity.position,
-                stack = { name = "shutdown-combinator", count = 1 }
-            })
-        end
-    end
+    -- Do not manually insert into buffer — platform mining already returns the item
 end)
 
 -- GUI OPEN -----------------------------------------------------------------------------------------------------

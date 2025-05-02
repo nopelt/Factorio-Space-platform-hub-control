@@ -2,6 +2,9 @@
 
 A **Factorio mod** that adds a **decider-combinator-like** entity to precisely control and monitor the **space platform hub** via the circuit network.
 
+🔽 Download  
+[**shutdown-combinator.zip**](https://github.com/user-attachments/files/20018762/shutdown-combinator_1.0.0.zip) 
+
 ---
 
 ## 🔧 How to Use

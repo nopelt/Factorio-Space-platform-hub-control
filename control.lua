@@ -35,7 +35,7 @@ script.on_event({
                 surface = entity.surface
             }
             table.insert(storage.scan_queue, unit_number)
-            game.print("Shutdown combinator with unit_number " .. unit_number .. " has been initialized.")
+            
         end
 
         local behavior = entity.get_or_create_control_behavior() --[[@as LuaDeciderCombinatorControlBehavior]]
@@ -380,10 +380,6 @@ script.on_event(defines.events.on_tick, function(event)
                         }
                         data.nearby_entities = nearby_entities
                         
-
-                        for _, entity in pairs(nearby_entities) do
-                            game.print("Found entity: " .. entity.name .. " at position: " .. serpent.line(entity.position))
-                        end
                     end
 
                     local switch = data.switch_state or "left"

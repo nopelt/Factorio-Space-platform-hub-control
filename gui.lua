@@ -12,6 +12,8 @@ function gui.build_shutdown_combinator_gui(player, entity, unit_data)
     local dummy_signal = unit_data.dummy_signal 
     local sc_state = unit_data.speed_control_state
     local sc_value = unit_data.speed_control_value
+    local hub_chk = unit_data.hub_weight_checkbox
+    local hub_wh = unit_data.hub_weight_value
     -- Fixing this variable name to match the one used in storage
 
     -- Get the player-specific data from storage (for per-player states)
@@ -161,7 +163,7 @@ function gui.build_shutdown_combinator_gui(player, entity, unit_data)
         ignored_by_interaction = true
     }
     spacer2.style.horizontally_stretchable = true
-    spacer2.style.width = 40
+    spacer2.style.width = 46
 
     local value_number = storage.shutdown_gui_value_number or 0
     button_row.add{
@@ -185,8 +187,68 @@ function gui.build_shutdown_combinator_gui(player, entity, unit_data)
     my_sprite_button.style.height = 30
     my_sprite_button.style.padding = -10
 
+    -- Add a vertical spacer between button rows
+content_frame.add{
+    type = "empty-widget",
+    name = "row_spacer",
+    style = "draggable_space",
+    direction = "vertical"
+}.style.height = 10
+
+    -- New Button Row (duplicate with different names and IDs)
+local button_row_2 = content_frame.add{
+    type = "flow",
+    name = "button_row_2",
+    direction = "horizontal"
+}
+button_row_2.style.horizontal_align = "center"
+button_row_2.style.vertical_align = "center"
+
+button_row_2.add{
+    type = "checkbox",
+    name = "hub-weight-checkbox",
+    caption = "Read Hub Weight",
+    state = hub_chk or false,
+    tags = { unit_number = entity.unit_number, id = "checkbox4" }
+}
+
+local spacer3 = button_row_2.add{
+    type = "flow",
+    direction = "horizontal",
+    ignored_by_interaction = true
+}
+spacer3.style.horizontally_stretchable = true
+spacer3.style.width = 40
+
+button_row_2.add{
+    type = "sprite-button",
+    name = "my_sprite_button_2",
+    sprite = "virtual-signal/signal-W",
+    style = "tool_button",
+    tooltip = "Weight of the platform",
+    enabled = hub_chk or false,
+    number = (hub_wh ~= 0) and hub_wh or nil,
+    tags = {
+        unit_number = entity.unit_number,
+        id = "Sprite_id_2",
+        hub_chk = hub_chk,
+        hub_wh = hub_wh
+    }
+}
+
+local my_sprite_button_2 = button_row_2["my_sprite_button_2"]
+my_sprite_button_2.style.width = 30
+my_sprite_button_2.style.height = 30
+my_sprite_button_2.style.padding = -10
+
     -----------------------------------------------------------------------------------------
     ---GAP
+    content_frame.add{
+        type = "empty-widget",
+        name = "row_spacer2",
+        style = "draggable_space",
+        direction = "vertical"
+    }.style.height = 10
     -----------------------------------------------------------------------------------------
 
     -- NEW LEFT-ALIGNED ROW WITH CHECKBOX
@@ -210,7 +272,7 @@ content_frame.add{
     type = "flow",
     direction = "vertical",
     ignored_by_interaction = true
-}.style.height = 8
+}.style.height = 10
 
     -- NEW LEFT-ALIGNED ROW WITH CHECKBOX
     local finalafter_final = content_frame.add{

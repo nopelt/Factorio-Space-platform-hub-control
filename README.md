@@ -14,7 +14,7 @@ A **Factorio mod** that adds a **decider-combinator-like** entity to precisely c
 3. To **read the hub's status**, connect a decider combinator (or anything else) to the mod’s **output**  
    
 4. To **control the hub's speed**, make sure the **"Read speed"** checkbox in the hub is checked.  ![Read hub signal](Github_pictures/Read_speed.png)
-   ![Connection Example](Github_pictures/Cnt_example.png)
+   ![Connection Example](Github_pictures/Cnt_examples.png)
 
 ---
 

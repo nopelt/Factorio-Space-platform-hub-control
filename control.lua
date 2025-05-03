@@ -34,6 +34,8 @@ script.on_event({
                 dummy_signal = false,
                 speed_control_state = false,
                 speed_control_value = 50,
+                hub_weight_checkbox = false,
+                hub_weight_value = 0,
                 entity = entity,
                 position = entity.position,
                 surface = entity.surface
@@ -61,12 +63,18 @@ script.on_event({
                         signal = { type = "virtual", name = "signal-H" },
                         copy_count_from_input = false,
                         constant = 0
+                    },
+                    {
+                        signal = { type = "virtual", name = "signal-W" },
+                        copy_count_from_input = false,
+                        constant = 0
                     }
                 }
             }
         end
     end
 end)
+
 
 -- DESTROY -----------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_player_mined_entity, function(event)
@@ -93,6 +101,11 @@ script.on_event(defines.events.on_space_platform_mined_entity, function(event)
 
     -- Do not manually insert into buffer — platform mining already returns the item
 end)
+
+
+
+
+
 
 -- GUI OPEN -----------------------------------------------------------------------------------------------------
 script.on_event(defines.events.on_gui_opened, function(event)
@@ -186,7 +199,9 @@ script.on_event(defines.events.on_gui_switch_state_changed, function(event)
             connected_state = false,
             dummy_signal = false,
             speed_control_state = false,
-            speed_control_value = 0
+            speed_control_value = 0,
+            hub_weight_checkbox = false,
+            hub_weight_value = 0
         }
     end
 
@@ -210,7 +225,9 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
             connected_state = false,
             dummy_signal = false,
             speed_control_state = false,
-            speed_control_value = 0
+            speed_control_value = 0,
+            hub_weight_checkbox = false,
+            hub_weight_value = 0
         }
     end
 
@@ -220,6 +237,8 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
         storage.shutdown_combinator_everything[unit_number].dummy_signal = element.state
     elseif id == "checkbox3" then
         storage.shutdown_combinator_everything[unit_number].speed_control_state = element.state
+    elseif id == "checkbox4" then
+        storage.shutdown_combinator_everything[unit_number].hub_weight_checkbox = element.state
     end
 end)
 
@@ -244,7 +263,9 @@ script.on_event({defines.events.on_gui_text_changed, defines.events.on_gui_value
             connected_state = false,
             dummy_signal = false,
             speed_control_state = false,
-            speed_control_value = 0
+            speed_control_value = 0,
+            hub_weight_checkbox = false,
+            hub_weight_value = 0
         }
     end
 
@@ -344,6 +365,44 @@ script.on_event(defines.events.on_tick, function(event)
             end
         end
 
+        if frame and frame.valid and data then
+            local center_flow = frame["center_flow"]
+            if center_flow and center_flow.valid then
+                local content_frame = center_flow["shutdown-combinator-content"]
+                if content_frame and content_frame.valid then
+                    local button_row_2 = content_frame["button_row_2"]
+                    if button_row_2 and button_row_2.valid then
+                        local sprite_button_2 = button_row_2["my_sprite_button_2"]
+                        if sprite_button_2 and sprite_button_2.valid then
+                            local hub_wh = data.hub_weight_value or 0
+                            local hub_wh_ch = data.hub_weight_checkbox or false
+                            local connected = data.connected_state or false
+
+                            sprite_button_2.tags = {
+                                unit_number = unit_number,
+                                hub_wh = hub_wh,
+                                hub_chk = hub_wh_ch
+                            }
+
+                            if not connected and hub_wh_ch then
+                                sprite_button_2.number = nil
+                                sprite_button_2.enabled = true
+                            else
+                                if hub_wh_ch then
+                                    sprite_button_2.enabled = true
+                                    sprite_button_2.number = hub_wh
+                                    game.print("hub_wh value: " .. tostring(hub_wh))
+                                else
+                                    sprite_button_2.enabled = false
+                                    sprite_button_2.number = nil
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
         -- Logic of the object
         -------------------------------------------------------------------------------------------------------------
         for unit_number, data in pairs(storage.shutdown_combinator_everything) do
@@ -369,6 +428,8 @@ script.on_event(defines.events.on_tick, function(event)
                         }
                         data.nearby_entities = nearby_entities
                         
+
+                        
                     end
 
                     local switch = data.switch_state or "left"
@@ -379,6 +440,8 @@ script.on_event(defines.events.on_tick, function(event)
                     local sc_value = data.speed_control_value or 0
                     local connected = false
                     local hub_speed = 0
+                    local hub_wh_checkbox = data.hub_weight_checkbox or false
+                    local hub_wh = data.hub_weight_value or 0
 
                     local input_networks = {
                         combinator.get_circuit_network(defines.wire_connector_id.combinator_input_red),
@@ -418,11 +481,12 @@ script.on_event(defines.events.on_tick, function(event)
                             }
 
                             for _, net in pairs(hub_inputs) do
-                                if net and net.valid then
-                                    output_network_ids[net.network_id] = true
+                                if net and net.valid and output_network_ids[net.network_id] then
                                     connected = true
+                                    break -- only need one match to confirm connection
                                 end
                             end
+                            
 
                             for _, net in pairs(hub_inputs) do
                                 if net and net.valid and output_network_ids[net.network_id] and net.signals then
@@ -441,7 +505,40 @@ script.on_event(defines.events.on_tick, function(event)
                                 data.scanned = true
                             else
                                 data.scanned = false
-                                 end
+                                
+                             end
+                            if not connected then
+                                -- Reset signals if disconnected
+                                    local behavior = combinator.get_or_create_control_behavior()
+                                    if behavior and behavior.valid then
+                                        ---@cast behavior LuaDeciderCombinatorControlBehavior
+
+                                        behavior.parameters = {
+                                            conditions = {
+                                                {
+                                                    comparator = "<",
+                                                    first_signal = { type = "virtual", name = "" },
+                                                    constant = 9999999
+                                                }
+                                            },
+                                            outputs = {
+                                                {
+                                                    signal = { type = "virtual", name = "signal-H" },
+                                                    copy_count_from_input = false,
+                                                    constant = 0
+                                                },
+                                                {
+                                                    signal = { type = "virtual", name = "signal-W" },
+                                                    copy_count_from_input = false,
+                                                    constant = 0
+                                                }
+                                            }
+                                        }
+                                    end
+
+
+                                goto continue  -- skip the rest of this entity's logic
+                            end
                             if connected then
                                 local hub_speed_num = tonumber(hub_speed) or 0
                                 local sc_value_num = tonumber(sc_value) or 0
@@ -465,46 +562,46 @@ script.on_event(defines.events.on_tick, function(event)
                                         hub.surface.platform.paused = false
                                     end
                                 end
+                                if hub_wh_checkbox == true then
+                                    hub_wh = math.floor(hub.surface.platform.weight / 1000)  -- Divide by 1000 to make the number smaller, then round down
+                                    data.hub_weight_value = hub_wh
+                                else
+                                    hub_wh = 0
+                                end
+                                
+                                
 
-                                -- Initialize previous speed if it doesn't exist
-                                -- Ensure table for tracking last speeds exists
-                                  -- Ensure storage tables exist
-                                    -- Ensure storage tables exist
-                                    local unit_data = storage.shutdown_combinator_everything[unit_number]
-                                    if not unit_data then return end
-                                    
-                                    local curr = hub_speed_num
-                                    local last = unit_data.last_speed or 0
-                                    local diff = curr - sc_value_num
-                                    local margin = 1
-                                    
-                                    -- Update trend state
-                                    unit_data.is_increasing = unit_data.is_increasing or false
-                                    if curr > last then
-                                        unit_data.is_increasing = true
-                                    elseif curr < last - 0.1 then
-                                        unit_data.is_increasing = false
-                                    end
-                                    
-                                    -- Core logic
+                                -- Ensure storage tables exist
+                                local unit_data = storage.shutdown_combinator_everything[unit_number]
+                                if not unit_data then return end
+
+                                local curr = hub_speed_num
+                                local last = unit_data.last_speed or 0
+                                local diff = curr - sc_value_num
+                                local margin = 1
+
+                                -- Update trend state
+                                unit_data.is_increasing = unit_data.is_increasing or false
+                                if curr > last then
+                                    unit_data.is_increasing = true
+                                elseif curr < last - 0.1 then
+                                    unit_data.is_increasing = false
+                                end
+
+                                -- Core logic
+                                if not sc_state and check then
+                                    -- When SC state is OFF and checkbox is ON, read paused state directly
+                                    data.value_number = hub.surface.platform.paused and 0 or 1
+                                else
                                     data.value_number =
                                         (curr == 0 or not check) and 0 or
-                                        (not sc_state) and (hub.surface.platform.paused and 0 or 1) or
                                         (unit_data.is_increasing or math.abs(diff) <= margin) and 1 or 0
+                                end
+
+                                -- Store for next tick
+                                unit_data.last_speed = curr
+
                                     
-                                    -- Store for next tick
-                                    unit_data.last_speed = curr
-                                    
-                                    
-
-
-
-
-
-
-                                
-                                
-
                                 local frame = player.gui.screen["shutdown-combinator-frame"]
                                 if frame and frame.valid then
                                     local checkbox = frame["center_flow"]["shutdown-combinator-content"]["shutdown-true-signal"]
@@ -520,7 +617,29 @@ script.on_event(defines.events.on_tick, function(event)
                                 local behavior = combinator.get_or_create_control_behavior()
                                 if behavior and behavior.valid then
                                     ---@cast behavior LuaDeciderCombinatorControlBehavior
-                                    local signal_value = (check and not hub.surface.platform.paused and data.value_number == 1) and 1 or 0
+
+                                    local signal_H = 0
+                                    local signal_W = 0
+
+                                    if check and not hub.surface.platform.paused and data.value_number == 1 then
+                                        if hub_wh_checkbox then
+                                            signal_H = 1
+                                            signal_W = hub_wh
+                                        else
+                                            signal_H = 1
+                                            signal_W = 0
+                                        end
+                                    elseif check and hub_wh_checkbox and hub.surface.platform.paused ~= nil and sc_state ~= nil and (data.value_number == 0 or data.value_number == 1) then
+                                        signal_H = 0
+                                        signal_W = hub_wh
+                                    elseif not check and hub_wh_checkbox then
+                                        signal_H = 0
+                                        signal_W = hub_wh
+                                    elseif not check and not hub_wh_checkbox then
+                                        signal_H = 0
+                                        signal_W = 0
+                                    end
+
                                     behavior.parameters = {
                                         conditions = {
                                             {
@@ -533,16 +652,27 @@ script.on_event(defines.events.on_tick, function(event)
                                             {
                                                 signal = { type = "virtual", name = "signal-H" },
                                                 copy_count_from_input = false,
-                                                constant = signal_value
+                                                constant = signal_H
+                                            },
+                                            {
+                                                signal = { type = "virtual", name = "signal-W" },
+                                                copy_count_from_input = false,
+                                                constant = signal_W
                                             }
                                         }
                                     }
                                 end
+
+                                
                             end
                         end
                     end
                 end
             end
+
+            ::continue::
+
+            
         end
     end
 end)

@@ -4,6 +4,6 @@
   "title": "Shutdown Combinator",
   "author": "NukEverything",
   "factorio_version": "2.0",
-  "description": "Adds a shutdown combinator to control shutdown behavior in your factory.",
+  "description": "Control panel like decider type entity for space hub read signal/ read weight signal / force auto or manual via signal.",
   "dependencies": ["base >= 2.0"]
 }

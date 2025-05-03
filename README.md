@@ -28,6 +28,7 @@ A **Factorio mod** that adds a **decider-combinator-like** entity to precisely c
 - **Read real-time hub status via signals**:
   - **`H1`** → Hub is in automatic mode and moving  
   - **`H0`** → Otherwise
+  - **`W[number]`** weight in tons 1 = 1 ton
 
 ### 3. **Precision Speed Locking**
 - Set a **target speed (e.g., 30 km/s)** and the mod will hard-lock the hub to it once reached.
